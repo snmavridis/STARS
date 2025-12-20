@@ -1,0 +1,10 @@
+# Build artifacts
+build/
+*.o
+*.exe
+# Generated results
+results/
+*.bin
+
+# OS Noise
+.DS_Store
