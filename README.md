@@ -11,7 +11,7 @@ It is intended to serve as a single, reproducible “one-stop shop” for simula
 ---
 
 ## Repository Structure
-
+```
 STARS/
 ├── src/ # C++ source files for the simulation
 ├── include/ # C++ header files
@@ -28,7 +28,7 @@ STARS/
 ├── README.md # This file
 ├── LICENSE
 └── .gitignore
-
+```
 ---
 
 ## Directory Descriptions
@@ -36,6 +36,8 @@ STARS/
 ### `src/`
 Contains all C++ implementation files (`.cpp`) for the simulation.
 No headers, data files, or scripts should be placed here.
+
+---
 
 ### `include/`
 Contains all C++ header files (`.h` / `.hpp`) used by the simulation.
