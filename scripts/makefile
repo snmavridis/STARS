@@ -43,7 +43,7 @@ TARGET := $(BIN_DIR)/$(PROJECT)$(EXE)
 
 CONFIG ?= release
 
-CXXFLAGS_COMMON := -std=c++17 -Wall -Wextra -I$(INC_DIR)
+CXXFLAGS_COMMON := -std=c++17 -Wall -Wextra -Wno-writable-strings -Wno-unused-but-set-variable -Wno-comment -I$(INC_DIR)
 CFLAGS_COMMON   := -Wall -Wextra -I$(INC_DIR)
 
 ifeq ($(CONFIG),debug)
