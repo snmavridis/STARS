@@ -2,7 +2,7 @@
 # Project root (Makefile lives in scripts/)
 # ============================================================
 
-ROOT_DIR := .
+ROOT_DIR := $(abspath .)
 SRC_DIR  := $(ROOT_DIR)/src
 INC_DIR  := $(ROOT_DIR)/include
 BUILD_DIR := $(ROOT_DIR)/build
@@ -41,17 +41,17 @@ TARGET := $(BIN_DIR)/$(PROJECT)$(EXE)
 # Build configuration
 # ============================================================
 
-CONFIG ?= release
+CONFIG ?= debug 
 
 CXXFLAGS_COMMON := -std=c++17 -Wall -Wextra -Wno-writable-strings -Wno-unused-but-set-variable -Wno-comment -I$(INC_DIR)
 CFLAGS_COMMON   := -Wall -Wextra -I$(INC_DIR)
 
-ifeq ($(CONFIG),debug)
-	CXXFLAGS := $(CXXFLAGS_COMMON) -O0 -g
-	CFLAGS   := $(CFLAGS_COMMON) -O0 -g
-else
+ifeq ($(CONFIG),release)
 	CXXFLAGS := $(CXXFLAGS_COMMON) -O3
 	CFLAGS   := $(CFLAGS_COMMON) -O3
+else
+	CXXFLAGS := $(CXXFLAGS_COMMON) -O0 -g
+	CFLAGS   := $(CFLAGS_COMMON) -O0 -g
 endif
 
 LDFLAGS :=
