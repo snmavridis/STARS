@@ -82,7 +82,7 @@ void document_input(Document *doc_aim5,Document *doc_aircraft3);
 //130724 Building AIM5, PZi
 ///////////////////////////////////////////////////////////////////////////////
 
-int main() 
+int main(int argc, char* argv[])
 {
 	double sim_time=0; //simulation time, same as 'time'
 	char title[CHARL]; //title from first line of 'input.asc'
@@ -116,9 +116,21 @@ int main()
 	///////////////////////////////////////////////////////////////////////////
 
 	//creating an input stream object and opening 'input.asc' file
-	fstream input("input.asc");
-	if(input.fail())
-	{cerr<<"*** Error: File stream 'input.asc' failed to open (check spelling) ***\n";exit(1);}
+	const char* input_file = nullptr;
+
+	if (argc >= 2) {
+    input_file = argv[1];
+	} else {
+    input_file = "data/input.asc";  // default CADAC location
+	}
+
+	fstream input(input_file);
+	if (!input) {
+    cerr << "*** Error: File stream '" << input_file << "' failed to open ***\n";
+    cerr << "    Current working directory: " 
+         << std::filesystem::current_path() << "\n";
+    exit(1);
+	}
 
 	//creating an output stream object and opening 'tabout.asc' file
 	ofstream ftabout("tabout.asc");

@@ -10,6 +10,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "class_hierarchy.hpp"
+#include <filesystem>
+#include <cstdlib>
 
 using namespace std;
 
@@ -1176,230 +1178,236 @@ void Variable::init(char *na,
 //
 //020912 Created by Peter H Zipfel
 ///////////////////////////////////////////////////////////////////////////////
-void document_input(Document *doc_aim5,Document *doc_aircraft3)
+void document_input(Document *doc_aim5, Document *doc_aircraft3)
 {
-	char buffl[CHARL];*buffl=NULL;
-	char buffn[CHARN];*buffn=NULL;
-	char buffo[CHARN];*buffo=NULL;
-	char numerical[CHARN];*numerical=NULL;
-	char line_clear[CHARL];*line_clear=NULL;
-	bool ident=false;
-	bool def_found=false;
+    char buffl[CHARL] = {0};
+    char buffn[CHARN] = {0};
+    char buffo[CHARN] = {0};
+    char numerical[CHARN] = {0};
+    char line_clear[CHARL] = {0};
+    bool ident = false;
+    bool def_found = false;
 
-	//opening existing input.asc file
-	fstream input1("input.asc");
-	if(!input1){cout<<" *** Error: cannot open 'input1.asc' file *** \n";exit(1);}
+    // Paths: read canonical deck from ./data, write documented copy to ./results
+    std::filesystem::path root = std::filesystem::current_path();
+    std::filesystem::path input_path = root / "data" / "input.asc";
 
-	//opening new copy file
-	fstream fcopy("input_copy.asc");
-	if(!fcopy){cout<<" *** Error: cannot open 'input_copy.asc' file *** \n";exit(1);}
+    std::filesystem::path results_dir = root / "results";
+    std::filesystem::create_directories(results_dir);
+    std::filesystem::path output_path = results_dir / "input_copy.asc";
 
-	//copying 'input.asc' to 'input_copy.asc'
-	do{
-		input1.getline(buffl,CHARL,'\n');
-		fcopy<<buffl<<'\n';
-	}while(!input1.eof());
+    // Open source input (read-only)
+    fstream input1(input_path.string().c_str(), ios::in);
+    if (!input1) {
+        cerr << " *** Error: cannot open '" << input_path.string() << "' file ***\n";
+        cerr << "     Current working directory: " << root << "\n";
+        std::abort();
+    }
 
-	//clear EOF flag in 'input.asc' file
-	input1.clear();
-	input1.close();
+    // Open documented output (write, truncate)
+    ofstream output(output_path.string().c_str(), ios::out | ios::trunc);
+    if (!output) {
+        cerr << " *** Error: cannot open '" << output_path.string() << "' file ***\n";
+        std::abort();
+    }
 
-	//creating new output stream to file 'input.asc' and destroying all previous data
-	ofstream input;
-	input.open("input.asc",ios::out|ios::trunc);
+    // Copy header lines verbatim until 'VEHICLES' is reached (EOF-protected)
+    bool vehicles_found = false;
+    while (input1.getline(buffl, CHARL, '\n')) {
+        output << buffl << '\n';
+        if (strstr(buffl, "VEHICLES")) {
+            vehicles_found = true;
+            break;
+        }
+    }
+    if (!vehicles_found) {
+        cerr << "*** Error: 'VEHICLES' not found in '" << input_path.string() << "' ***\n";
+        std::abort();
+    }
 
-	//reset file pointers to beginning
-	fcopy.seekp(ios::beg);
+    // Read and annotate until STOP
+    output.setf(ios::left);
 
-	//copying from 'fcopy' stream to 'input' stream until 'VEHICLES' is reached
-	do{
-		fcopy.getline(buffl,CHARL,'\n');
-		input<<buffl<<'\n';
+    bool stop_found = false;
 
-	}while(!strstr(buffl,"VEHICLES"));
+    while (input1 >> buffo) {   // buffo gets AIM5, AIRCRAFT3, ENDTIME, STOP, comments, etc.
 
-	//reading until STOP of input_copy file
-	input.setf(ios::left);
-	do{
-		fcopy>>buffo;;//buffo gets AIM5, ENDTIME STOP and //comments
+        if (!strcmp(buffo, "AIM5")) {
+            output << '\t' << buffo;                // writes AIM5 line
+            input1.getline(line_clear, CHARL, '\n');
+            output << line_clear << endl;
 
+            // inside AIM5 loop until 'END' is reached
+            do {
+                if (!(input1 >> buffn)) {
+                    cerr << "*** Error: Unexpected EOF while parsing AIM5 block ***\n";
+                    std::abort();
+                }
 
-		if(!strcmp(buffo,"AIM5")){
-			input<<'\t'<<buffo;		//writes AIM5 line
-			fcopy.getline(line_clear,CHARL,'\n');
-			input<<line_clear<<endl;
+                // inserting whole line starting with key word IF
+                if (!strcmp(buffn, "IF")) {
+                    output << "\t\t\t" << buffn;
+                    input1.getline(line_clear, CHARL, '\n');
+                    output << line_clear << endl;
+                    ident = true;
+                }
+                // inserting whole line starting with key word ENDIF
+                else if (!strcmp(buffn, "ENDIF")) {
+                    output << "\t\t\t" << buffn;
+                    input1.getline(line_clear, CHARL, '\n');
+                    output << line_clear << endl;
+                    ident = false;
+                }
+                // reading and writing comment lines
+                else if (ispunct(buffn[0])) {
+                    if (ident) output << "\t\t\t" << buffn;
+                    else       output << "\t\t"   << buffn;
+                    input1.getline(line_clear, CHARL, '\n');
+                    output << line_clear << endl;
+                }
+                // inserting whole line starting with certain key words
+                else if (!strcmp(buffn, "AERO_DECK") || !strcmp(buffn, "PROP_DECK") || !strcmp(buffn, "GAIN_DECK")) {
+                    output << "\t\t\t" << buffn;
+                    input1.getline(line_clear, CHARL, '\n');
+                    output << line_clear << endl;
+                }
+                // inserting 'END' with only one tab
+                else if (!strcmp(buffn, "END")) {
+                    output << '\t' << buffn;
+                    input1.getline(line_clear, CHARL, '\n');
+                    output << line_clear << endl;
+                }
+                else {
+                    // inserting module-variable name
+                    if (ident) output << "\t\t\t\t" << buffn;
+                    else       output << "\t\t\t"   << buffn;
 
-			//inside AIM5 loop until 'END' is reached
-			do{
-				fcopy>>buffn;
-				//inserting whole line starting with key word IF
-				if(!strcmp(buffn,"IF")){
-					input<<"\t\t\t"<<buffn;
-					fcopy.getline(line_clear,CHARL,'\n');
-					input<<line_clear<<endl;
-					//set ident
-					ident=true;
-				}
-				//inserting whole line starting with key word ENDIF
-				else if(!strcmp(buffn,"ENDIF")){
-					input<<"\t\t\t"<<buffn;
-					fcopy.getline(line_clear,CHARL,'\n');
-					input<<line_clear<<endl;
-					//set ident
-					ident=false;
-				}
-				//reading and writing comment lines
-				else if(ispunct(buffn[0])){
-					//reading and writing comment lines
-					if(ident)
-						input<<"\t\t\t"<<buffn;
-					else
-						input<<"\t\t"<<buffn;
-					fcopy.getline(line_clear,CHARL,'\n');
-					input<<line_clear<<endl;
-				}
-				//inserting whole line starting with certain key words
-				else if(!strcmp(buffn,"AERO_DECK")||!strcmp(buffn,"PROP_DECK")){
-					input<<"\t\t\t"<<buffn;
-					fcopy.getline(line_clear,CHARL,'\n');
-					input<<line_clear<<endl;
-				}
-				//inserting 'END' with only one tab
-				else if(!strcmp(buffn,"END")){
-					input<<'\t'<<buffn;
-					fcopy.getline(line_clear,CHARL,'\n');
-					input<<line_clear<<endl;
-				}
-				else{
-					//inserting module-variable name
-					if(ident)
-						input<<"\t\t\t\t"<<buffn;
-					else
-						input<<"\t\t\t"<<buffn;
+                    // jumping over numerical value
+                    if (!(input1 >> numerical)) {
+                        cerr << "*** Error: Unexpected EOF while reading value for '" << buffn << "' ***\n";
+                        std::abort();
+                    }
+                    output << "  " << numerical;
 
-					//jumping over numerical value
-					fcopy>>numerical;
-					input<<"  "<<numerical;
+                    // getting definition for module-variable stored in 'buffn'
+                    def_found = false;
+                    for (int k = 0; k < (NFLAT3 + NAIM); k++) {
+                        if (!strcmp(doc_aim5[k].get_name(), "end_array")) break;
+                        if (!strcmp(doc_aim5[k].get_name(), buffn)) {
+                            input1.getline(line_clear, CHARL, '\n');
+                            output << "    //";
+                            if (!strcmp(doc_aim5[k].get_type(), "int")) output << "'int' ";
+                            output << doc_aim5[k].get_def();
+                            output << "  module ";
+                            output << doc_aim5[k].get_mod();
+                            output << endl;
+                            def_found = true;
+                            break;
+                        }
+                    }
+                    // if 'name' has no definition clear line
+                    if (!def_found) {
+                        input1.getline(line_clear, CHARL, '\n');
+                        output << "   //*** <<< Check spelling" << endl;
+                    }
+                }
 
-					//getting defintion for module-variable stored in 'buffn'
-					def_found=false; 
-					for(int k=0;k<(NFLAT3+NAIM);k++){
-						if(!strcmp(doc_aim5[k].get_name(),"end_array"))break;
-						if(!strcmp(doc_aim5[k].get_name(),buffn)){
-							fcopy.getline(line_clear,CHARL,'\n'); 							
-							input<<"    //";
-							if(!strcmp(doc_aim5[k].get_type(),"int"))input<<"'int' ";
-							input<<doc_aim5[k].get_def();
-							input<<"  module ";
-							input<<doc_aim5[k].get_mod();
-							input<<endl;
-							def_found=true;
-						}
-					}
-					//if 'name' has no defintion clear line
-					if(!def_found){
-						fcopy.getline(line_clear,CHARL,'\n');
-						input<<"   //*** <<< Check spelling"<<endl;;
-					}
-				}
-			}while(strcmp(buffn,"END"));
-		}//end of AIM5 has been reached
+            } while (strcmp(buffn, "END"));
+        } // end AIM5
 
-		else if(!strcmp(buffo,"AIRCRAFT3")){
-			input<<'\t'<<buffo;		//writes aircraft3 line
-			fcopy.getline(line_clear,CHARL,'\n');
-			input<<line_clear<<endl;
+        else if (!strcmp(buffo, "AIRCRAFT3")) {
+            output << '\t' << buffo;                // writes aircraft3 line
+            input1.getline(line_clear, CHARL, '\n');
+            output << line_clear << endl;
 
-			//inside aircraft3 loop until 'END' is reached
-			do{
-				fcopy>>buffn;
-				//inserting whole line starting with key word IF
-				if(!strcmp(buffn,"IF")){
-					input<<"\t\t\t"<<buffn;
-					fcopy.getline(line_clear,CHARL,'\n');
-					input<<line_clear<<endl;
-					//set ident
-					ident=true;
-				}
-				//inserting whole line starting with key word ENDIF
-				else if(!strcmp(buffn,"ENDIF")){
-					input<<"\t\t\t"<<buffn;
-					fcopy.getline(line_clear,CHARL,'\n');
-					input<<line_clear<<endl;
-					//set ident
-					ident=false;
-				}
-				//reading and writing comment lines
-				else if(ispunct(buffn[0])){
-					//reading and writing comment lines
-					if(ident)
-						input<<"\t\t\t"<<buffn;
-					else
-						input<<"\t\t"<<buffn;
-					fcopy.getline(line_clear,CHARL,'\n');
-					input<<line_clear<<endl;
-				}
-				//inserting whole line starting with certain key words
-				else if(!strcmp(buffn,"AERO_DECK")||!strcmp(buffn,"PROP_DECK")){
-					input<<"\t\t\t"<<buffn;
-					fcopy.getline(line_clear,CHARL,'\n');
-					input<<line_clear<<endl;
-				}
-				//inserting 'END' with only one tab
-				else if(!strcmp(buffn,"END")){
-					input<<'\t'<<buffn;
-					fcopy.getline(line_clear,CHARL,'\n');
-					input<<line_clear<<endl;
-				}
-				else{
-					//inserting module-variable name
-					if(ident)
-						input<<"\t\t\t\t"<<buffn;
-					else
-						input<<"\t\t\t"<<buffn;
-					//jumping over numerical value
-					fcopy>>numerical;
-					input<<"  "<<numerical;
+            // inside aircraft3 loop until 'END' is reached
+            do {
+                if (!(input1 >> buffn)) {
+                    cerr << "*** Error: Unexpected EOF while parsing AIRCRAFT3 block ***\n";
+                    std::abort();
+                }
 
-					//getting defintion for module-variable stored in 'buffn'
-					def_found=false; 
-					for(int k=0;k<(NFLAT3+NAIRCRAFT);k++){
-						if(!strcmp(doc_aircraft3[k].get_name(),"end_array"))break;
-						if(!strcmp(doc_aircraft3[k].get_name(),buffn)){
-							fcopy.getline(line_clear,CHARL,'\n'); 							
-							input<<"    //";
-							if(!strcmp(doc_aircraft3[k].get_type(),"int"))input<<"'int' ";
-							input<<doc_aircraft3[k].get_def();
-							input<<"  module ";
-							input<<doc_aircraft3[k].get_mod();
-							input<<endl;
-							def_found=true;
-						}
-					}
-					//if 'name' has no defintion clear line
-					if(!def_found){
-						fcopy.getline(line_clear,CHARL,'\n');
-						input<<"   //*** <<< Check spelling"<<endl;;
-					}
-				}
-			}while(strcmp(buffn,"END"));
-		}//end of AIRCRAFT3 has been reached
+                if (!strcmp(buffn, "IF")) {
+                    output << "\t\t\t" << buffn;
+                    input1.getline(line_clear, CHARL, '\n');
+                    output << line_clear << endl;
+                    ident = true;
+                }
+                else if (!strcmp(buffn, "ENDIF")) {
+                    output << "\t\t\t" << buffn;
+                    input1.getline(line_clear, CHARL, '\n');
+                    output << line_clear << endl;
+                    ident = false;
+                }
+                else if (ispunct(buffn[0])) {
+                    if (ident) output << "\t\t\t" << buffn;
+                    else       output << "\t\t"   << buffn;
+                    input1.getline(line_clear, CHARL, '\n');
+                    output << line_clear << endl;
+                }
+                else if (!strcmp(buffn, "AERO_DECK") || !strcmp(buffn, "PROP_DECK") || !strcmp(buffn, "GAIN_DECK")) {
+                    output << "\t\t\t" << buffn;
+                    input1.getline(line_clear, CHARL, '\n');
+                    output << line_clear << endl;
+                }
+                else if (!strcmp(buffn, "END")) {
+                    output << '\t' << buffn;
+                    input1.getline(line_clear, CHARL, '\n');
+                    output << line_clear << endl;
+                }
+                else {
+                    if (ident) output << "\t\t\t\t" << buffn;
+                    else       output << "\t\t\t"   << buffn;
 
-		//inserting last three key words
-		else{
-			input<<buffo;
-			fcopy.getline(line_clear,CHARL,'\n');
- 			input<<line_clear<<endl;
-		}
-		*buffl=NULL;
-		*buffn=NULL;
-		*numerical=NULL;
-		*line_clear=NULL;
-	}while(strcmp(buffo,"STOP"));
+                    if (!(input1 >> numerical)) {
+                        cerr << "*** Error: Unexpected EOF while reading value for '" << buffn << "' ***\n";
+                        std::abort();
+                    }
+                    output << "  " << numerical;
 
-	*buffo=NULL;
-	input.clear();
-	fcopy.clear();
-	input.close();
-	fcopy.close();  
+                    def_found = false;
+                    for (int k = 0; k < (NFLAT3 + NAIRCRAFT); k++) {
+                        if (!strcmp(doc_aircraft3[k].get_name(), "end_array")) break;
+                        if (!strcmp(doc_aircraft3[k].get_name(), buffn)) {
+                            input1.getline(line_clear, CHARL, '\n');
+                            output << "    //";
+                            if (!strcmp(doc_aircraft3[k].get_type(), "int")) output << "'int' ";
+                            output << doc_aircraft3[k].get_def();
+                            output << "  module ";
+                            output << doc_aircraft3[k].get_mod();
+                            output << endl;
+                            def_found = true;
+                            break;
+                        }
+                    }
+                    if (!def_found) {
+                        input1.getline(line_clear, CHARL, '\n');
+                        output << "   //*** <<< Check spelling" << endl;
+                    }
+                }
+
+            } while (strcmp(buffn, "END"));
+        } // end AIRCRAFT3
+
+        // inserting last three key words and all other tokens verbatim
+        else {
+            output << buffo;
+            input1.getline(line_clear, CHARL, '\n');
+            output << line_clear << endl;
+        }
+
+        if (!strcmp(buffo, "STOP")) {
+            stop_found = true;
+            break;
+        }
+    }
+
+    if (!stop_found) {
+        cerr << "*** Error: 'STOP' not found in '" << input_path.string() << "' ***\n";
+        std::abort();
+    }
+
+    input1.close();
+    output.close();
 }
+
