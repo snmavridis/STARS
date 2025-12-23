@@ -52,7 +52,7 @@ void acquire_title_options(fstream &input,char *title,char *options)
 		cout<<"\n"<<title<<"   "<< __DATE__ <<" "<< __TIME__ <<"\n";
 
 	}
-	if(n==50) {cerr<<"*** Error: OPTIONS must be before MODULES*** \n";system("pause");exit(1);}
+	if(n==50) {cerr<<"*** Error: OPTIONS must be before MODULES*** \n";exit(1);}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -248,7 +248,7 @@ void number_objects(fstream &input,int &num_vehicles,int &num_aim,int &num_aircr
 	}
 	if(icount){cout<<" *** Error: "<<icount<<" illigal '=' sign(s) found  in 'input.asc' ***\n";}
 	if(vcount){cout<<" *** Error: "<<vcount<<" missing numerical value(s) in 'input.asc' ***\n";}
-	if(icount||vcount){system("pause");exit(1);}
+	if(icount||vcount){exit(1);}
 
 	//resetting file pointer position
 	input.clear();
@@ -288,14 +288,14 @@ Cadac *set_obj_type(fstream &input,Module *module_list,int num_modules,int num_a
 	{
 		//the pointer 'obj' is allocated the type 'Aim' 
 		obj=new Aim(module_list,num_modules);
-		if(obj==0){cerr<<"*** Error:'obj' allocation failed *** \n";system("pause");exit(1);}
+		if(obj==0){cerr<<"*** Error:'obj' allocation failed *** \n";exit(1);}
 		obj->set_name("AIM5");
 	}
 	else if (!strcmp(temp,"AIRCRAFT3"))
 	{
 		//the pointer 'obj' is allocated the type 'Aim' 
 		obj=new Aircraft(module_list,num_modules);
-		if(obj==0){cerr<<"*** Error:'obj' allocation failed *** \n";system("pause");exit(1);}
+		if(obj==0){cerr<<"*** Error:'obj' allocation failed *** \n";exit(1);}
 		obj->set_name("AIRCRAFT3");
 	}
 	return obj;
@@ -356,7 +356,7 @@ void merge_plot_files(string *plot_file_list,int num_aim,char *title)
 	//Allocating memory for 'ploti.asc' file streams
 	file_istream_list=new ifstream[num_aim];
 	if(file_istream_list==0)
-		{cerr<<"*** Error: file_istream_list[] allocation failed *** \n";system("pause");exit(1);}
+		{cerr<<"*** Error: file_istream_list[] allocation failed *** \n";exit(1);}
 
 	ofstream fmerge("plot.asc");
 
@@ -1188,11 +1188,11 @@ void document_input(Document *doc_aim5,Document *doc_aircraft3)
 
 	//opening existing input.asc file
 	fstream input1("input.asc");
-	if(!input1){cout<<" *** Error: cannot open 'input1.asc' file *** \n";system("pause");exit(1);}
+	if(!input1){cout<<" *** Error: cannot open 'input1.asc' file *** \n";exit(1);}
 
 	//opening new copy file
 	fstream fcopy("input_copy.asc");
-	if(!fcopy){cout<<" *** Error: cannot open 'input_copy.asc' file *** \n";system("pause");exit(1);}
+	if(!fcopy){cout<<" *** Error: cannot open 'input_copy.asc' file *** \n";exit(1);}
 
 	//copying 'input.asc' to 'input_copy.asc'
 	do{

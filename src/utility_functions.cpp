@@ -55,7 +55,7 @@ Matrix::Matrix(int row_size,int col_size)
 	//allocating memory
 	num_elem=row_size*col_size;
 	pbody=new double[num_elem];
-	if(pbody==0){cerr<<"*** Error: Matrix memory allocation failed ***\n";system("pause");exit(1);}
+	if(pbody==0){cerr<<"*** Error: Matrix memory allocation failed ***\n";exit(1);}
 
 	//initializing array to zero
 	for(int i=0;i<num_elem;i++)
@@ -69,7 +69,7 @@ Matrix::Matrix(const Matrix &MAT)
 	num_col=MAT.num_col;
 	num_elem=MAT.num_elem;
 	pbody=new double[num_elem];
-	if(pbody==0){cerr<<"*** Error: Matrix memory allocation failed ***\n";system("pause");exit(1);}
+	if(pbody==0){cerr<<"*** Error: Matrix memory allocation failed ***\n";exit(1);}
 
 	//copying
 	for(int i=0;i<num_elem;i++)
@@ -125,9 +125,9 @@ double Matrix::absolute()
 Matrix Matrix::adjoint()
 {
 	if(!(num_row==num_col))
-	{cerr<<" *** Error: matrix not square 'Matrix::adjoint()' *** \n";system("pause");exit(1);}
+	{cerr<<" *** Error: matrix not square 'Matrix::adjoint()' *** \n";exit(1);}
 	if((num_row==1)&&(num_col==1))
-	{cerr<<" *** Error: only one element 'Matrix::adjoint()' *** \n";system("pause");exit(1);}
+	{cerr<<" *** Error: only one element 'Matrix::adjoint()' *** \n";exit(1);}
 
 	Matrix RESULT(num_row,num_col);
 
@@ -151,7 +151,7 @@ Matrix Matrix::adjoint()
 void Matrix::assign_loc(const int &r, const int &c, const double &val)
 {
 	if(r>num_row-1||c>num_col-1)
-	{cerr<<" *** Error: location outside array 'Matrix::assign_loc()' *** \n";system("pause");exit(1);}
+	{cerr<<" *** Error: location outside array 'Matrix::assign_loc()' *** \n";exit(1);}
 
 	//assigning value
 	int offset=num_col*(r)+c;
@@ -229,7 +229,7 @@ Matrix & Matrix::cart_from_pol(const double &magnitude,const double &azimuth
 Matrix Matrix::cholesky()
 {
 	if(!(num_row==num_col))
-	{cerr<<" *** Error: matrix not square 'Matrix::cholesky()' *** \n";system("pause");exit(1);}
+	{cerr<<" *** Error: matrix not square 'Matrix::cholesky()' *** \n";exit(1);}
 	
 	Matrix SQRTMAT(num_row,num_col);
 	double sum(0);
@@ -272,7 +272,7 @@ return SQRTMAT;
 Matrix Matrix::col_vec(const int &col)
 {
 	if(col<=0||col>num_col)
-	{cerr<<" *** Error: column outside array 'Matrix::col_vec()' *** \n";system("pause");exit(1);}
+	{cerr<<" *** Error: column outside array 'Matrix::col_vec()' *** \n";exit(1);}
 	
 	Matrix RESULT(num_row,1);
 
@@ -290,7 +290,7 @@ Matrix Matrix::col_vec(const int &col)
 double Matrix::determinant()
 {
 	if(!(num_row==num_col))
-	{cerr<<" *** Error: matrix not square 'Matrix::determinant()' *** \n";system("pause");exit(1);}
+	{cerr<<" *** Error: matrix not square 'Matrix::determinant()' *** \n";exit(1);}
 	
 	double result=0;
 
@@ -328,7 +328,7 @@ double Matrix::determinant()
 Matrix Matrix::diamat_vec()
 {
 	if(num_col!=1)
-	{cerr<<" *** Error: not a vector 'Matrix::diagmat_vec()' *** \n";system("pause");exit(1);}
+	{cerr<<" *** Error: not a vector 'Matrix::diagmat_vec()' *** \n";exit(1);}
 
 	Matrix RESULT(num_row,num_row);
 	for(int i=0;i<num_row;i++){
@@ -344,7 +344,7 @@ Matrix Matrix::diamat_vec()
 Matrix Matrix::diavec_mat()
 {
 	if(!(num_row==num_col))
-	{cerr<<" *** Error: matrix not square 'Matrix::diavec_mat()' *** \n";system("pause");exit(1);}
+	{cerr<<" *** Error: matrix not square 'Matrix::diavec_mat()' *** \n";exit(1);}
 	
 	Matrix RESULT(num_row,1);
 	for(int i=0;i<num_row;i++){
@@ -368,7 +368,7 @@ void Matrix::dimension(int row,int col)
 	//allocating memory
 	num_elem=row*col;
 	pbody=new double[num_elem];
-	if(pbody==0){cerr<<"*** Error: memory allocation failed 'Matrix::dimension()' ***\n";system("pause");exit(1);}
+	if(pbody==0){cerr<<"*** Error: memory allocation failed 'Matrix::dimension()' ***\n";exit(1);}
 
 	//initializing array to zero
 	for(int i=0;i<num_elem;i++)
@@ -484,7 +484,7 @@ double Matrix::get_loc(const int &r,const int &c)
 	return *(pbody+r*num_col+c);		
 	else
 	{
-		{cout<<"*** Error: invalid matrix location 'Matrix::get_loc()' *** ";system("pause");exit(1);}
+		{cout<<"*** Error: invalid matrix location 'Matrix::get_loc()' *** ";exit(1);}
 		return 0;
 	}
 }
@@ -516,7 +516,7 @@ Matrix & Matrix::identity()
 			*(pbody+r*num_row+r)=1.;
 	}
 	else
-	{cout<<"*** Error: matrix not square 'Matrix::identiy()'*** ";system("pause");exit(1);}
+	{cout<<"*** Error: matrix not square 'Matrix::identiy()'*** ";exit(1);}
 
 	return *this;
 }
@@ -528,14 +528,14 @@ Matrix & Matrix::identity()
 Matrix Matrix::inverse()
 {
 	if (num_col!=num_row)
-	{cerr<<" *** Error: not a square matrix 'Matrix::inverse()' *** \n";system("pause");exit(1);}
+	{cerr<<" *** Error: not a square matrix 'Matrix::inverse()' *** \n";exit(1);}
 
 	Matrix RESULT(num_row,num_col);
 	double d=0;
 
 	d=determinant();
 	if (d==0)
-	{cerr<<" *** Error: singular! 'Matrix::inverse()' *** \n";system("pause");exit(1);}
+	{cerr<<" *** Error: singular! 'Matrix::inverse()' *** \n";exit(1);}
 
 	d=1./d;
 	RESULT=adjoint();
@@ -550,7 +550,7 @@ Matrix Matrix::inverse()
 Matrix Matrix::mat33_vec9()
 {
 	if(!(num_row==9 && num_col==1))
-	{cerr<<" *** Error: vector not 9 x 1 'Matrix::mat33_vec9()' *** \n";system("pause");exit(1);}
+	{cerr<<" *** Error: vector not 9 x 1 'Matrix::mat33_vec9()' *** \n";exit(1);}
 	
 	Matrix RESULT(3,3);
 	for(int i=0;i<9;i++){
@@ -633,7 +633,7 @@ Matrix Matrix::operator*(const Matrix &B)
 
 	//check for proper dimensions
 	if (num_col!=B.num_row)
-	{cout<<"*** Error: incompatible dimensions 'Matrix::operator*()' *** ";system("pause");exit(1);}
+	{cout<<"*** Error: incompatible dimensions 'Matrix::operator*()' *** ";exit(1);}
 
 	for(int i=0;i<RESULT.num_elem;i++){
 		r=i/B.num_col;
@@ -685,11 +685,11 @@ Matrix & Matrix::operator*=(const Matrix &B)
 
 	//check for proper dimensions
 	if (num_col!=B.num_row)
-	{cout<<"*** Error: incompatible dimensions 'Matrix::operator*=()' *** ";system("pause");exit(1);}
+	{cout<<"*** Error: incompatible dimensions 'Matrix::operator*=()' *** ";exit(1);}
 
 	//check for squareness of B
 	if (B.num_col!=B.num_row)
-	{cout<<"*** Error: Second matrix is not square 'Matrix::operator*=()' *** ";system("pause");exit(1);}
+	{cout<<"*** Error: Second matrix is not square 'Matrix::operator*=()' *** ";exit(1);}
 
 	for(i=0;i<RESULT.num_elem;i++){
 		int r=i/B.num_col;
@@ -729,7 +729,7 @@ Matrix Matrix::operator+(const Matrix &B)
 	Matrix RESULT(num_row,num_col);
 
 	if ((num_col!=B.num_col)||(num_row!=B.num_row))
-	{cout<<"*** Error: matrices have different dimensions 'Matrix::operator +' *** ";system("pause");exit(1);}
+	{cout<<"*** Error: matrices have different dimensions 'Matrix::operator +' *** ";exit(1);}
 
 	for (int i=0;i<num_elem;i++)
 		*(RESULT.pbody+i)=*(pbody+i)+(*(B.pbody+i));
@@ -754,7 +754,7 @@ Matrix & Matrix::operator+=(const double &b)
 Matrix & Matrix::operator+=(const Matrix &B)
 {
 	if ((num_col!=B.num_col)||(num_row!=B.num_row))
-	{cout<<"*** Error: matrices have different dimensions 'Matrix::operator +=' *** ";system("pause");exit(1);}
+	{cout<<"*** Error: matrices have different dimensions 'Matrix::operator +=' *** ";exit(1);}
 
 	for (int i=0;i<num_elem;i++)
 		*(pbody+i)=*(pbody+i)+(*(B.pbody+i));
@@ -783,7 +783,7 @@ Matrix Matrix::operator-(const Matrix &B)
 	Matrix RESULT(num_row,num_col);
 
 	if ((num_col!=B.num_col)||(num_row!=B.num_row))
-	{cout<<"*** Error: matrices have different dimensions 'Matrix::operator -' *** ";system("pause");exit(1);}
+	{cout<<"*** Error: matrices have different dimensions 'Matrix::operator -' *** ";exit(1);}
 	for (int i=0;i<num_elem;i++)
 		*(RESULT.pbody+i)=*(pbody+i)-*(B.pbody+i);
 	
@@ -807,7 +807,7 @@ Matrix & Matrix::operator-=(const double &b)
 Matrix & Matrix::operator-=(const Matrix &B)
 {
 	if ((num_col!=B.num_col)||(num_row!=B.num_row))
-	{cout<<"*** Error: matrices have different dimensions 'Matrix::operator +=' *** ";system("pause");exit(1);}
+	{cout<<"*** Error: matrices have different dimensions 'Matrix::operator +=' *** ";exit(1);}
 
 	for (int i=0;i<num_elem;i++)
 		*(pbody+i)=*(pbody+i)-(*(B.pbody+i));
@@ -822,7 +822,7 @@ Matrix & Matrix::operator-=(const Matrix &B)
 Matrix & Matrix::operator=(const Matrix &B)
 {
 	if((num_row != B.num_row)||(num_col != B.num_col))
-	{cerr<<" *** Error: incompatible dimensions 'Matrix::operator=()' *** \n";system("pause");exit(1);}
+	{cerr<<" *** Error: incompatible dimensions 'Matrix::operator=()' *** \n";exit(1);}
 
 	delete [] pbody;
 	num_elem=B.num_elem;
@@ -869,7 +869,7 @@ double & Matrix::operator[](const int &r)
 		return *(pbody+r);		
 	else
 	{
-		{cout<<"*** Error: invalid matrix location,'Matrix::operator[]' *** ";system("pause");exit(1);}
+		{cout<<"*** Error: invalid matrix location,'Matrix::operator[]' *** ";exit(1);}
 	}
 }
 ///////////////////////////////////////////////////////////////////////////////
@@ -889,7 +889,7 @@ double Matrix::operator^(const Matrix &B)
 	//true if both arrays have at least one equal dimension
 	if((num_row==B.num_row||num_row==B.num_col)&&(num_col==B.num_col||num_col==B.num_row))dim=true;
 	if(!one||!dim)
-	{cerr<<" *** Error: incompatible dimensions 'Matrix::operator^()' *** \n";system("pause");exit(1);}
+	{cerr<<" *** Error: incompatible dimensions 'Matrix::operator^()' *** \n";exit(1);}
 
 	for (int i=0;i<num_row;i++)
 			result+=*(pbody+i)*(*(B.pbody+i));
@@ -959,7 +959,7 @@ Matrix Matrix::pol_from_cart()
 Matrix Matrix::row_vec(const int &row)
 {
 	if(row<=0||row>num_row)
-	{cerr<<" *** Error: row outside array 'Matrix::row_vec()' *** \n";system("pause");exit(1);}
+	{cerr<<" *** Error: row outside array 'Matrix::row_vec()' *** \n";exit(1);}
 	
 	Matrix RESULT(1,num_col);
 
@@ -983,7 +983,7 @@ Matrix Matrix::skew_sym()
 	Matrix RESULT(3,3);
 	//check for proper dimensions
 	if (num_col!=1||num_row!=3)
-	{cout<<"*** Error: not a 3x1 column vector 'Matrix::skew_sym()' *** ";system("pause");exit(1);}
+	{cout<<"*** Error: not a 3x1 column vector 'Matrix::skew_sym()' *** ";exit(1);}
 	
 	*(RESULT.pbody+5)=-(*pbody);
 	*(RESULT.pbody+7)=(*pbody);
@@ -1001,9 +1001,9 @@ Matrix Matrix::skew_sym()
 Matrix Matrix::sub_matrix(const int &row, const int &col)
 { 
 	if((row>num_row)||(col>num_col))
-	{cerr<<" *** Error: row or column outside array 'Matrix::sub_matrix()' *** \n";system("pause");exit(1);}
+	{cerr<<" *** Error: row or column outside array 'Matrix::sub_matrix()' *** \n";exit(1);}
 	if(row==0||col==0)
-	{cerr<<" *** Error: row/col are numbered not offset 'Matrix::sub_matrix()' *** \n";system("pause");exit(1);}
+	{cerr<<" *** Error: row/col are numbered not offset 'Matrix::sub_matrix()' *** \n";exit(1);}
 
 	//create return matrix
 	Matrix RESULT(num_row-1,num_col-1);
@@ -1057,7 +1057,7 @@ Matrix Matrix::univec3()
 	Matrix RESULT(3,1);
 	//check for proper dimensions
 	if (num_col!=1||num_row!=3)
-	{cout<<" *** Error: not a 3x1 column vector in 'Matrix::univec()' *** \n";system("pause");exit(1);}
+	{cout<<" *** Error: not a 3x1 column vector in 'Matrix::univec()' *** \n";exit(1);}
 
 	double v1=(*pbody);
 	double v2=(*(pbody+1));
@@ -1084,7 +1084,7 @@ Matrix Matrix::univec3()
 Matrix Matrix::vec9_mat33()
 {
 	if(!(num_row==3 && num_col==3))
-	{cerr<<" *** Error: matrix not 3 x 3 'Matrix::vec9_mat33()' *** \n";system("pause");exit(1);}
+	{cerr<<" *** Error: matrix not 3 x 3 'Matrix::vec9_mat33()' *** \n";exit(1);}
 	
 	Matrix RESULT(9,1);
 	for(int i=0;i<9;i++){
@@ -1489,9 +1489,9 @@ Matrix integrate(Matrix &DYDX_NEW,Matrix &DYDX,Matrix &Y,const double int_step)
 	int ncol=Y.get_cols();int ncol1=DYDX_NEW.get_cols();int ncol2=DYDX.get_cols();
 
 	if(nrow!=nrow1||nrow!=nrow2)
-		{cerr<<" *** Error: incompatible row-dimensions in 'integrate()' *** \n";system("pause");exit(1);}
+		{cerr<<" *** Error: incompatible row-dimensions in 'integrate()' *** \n";exit(1);}
 	if(ncol!=ncol1||ncol!=ncol2)
-		{cerr<<" *** Error: incompatible column-dimensions in 'integrate()' *** \n";system("pause");exit(1);}
+		{cerr<<" *** Error: incompatible column-dimensions in 'integrate()' *** \n";exit(1);}
 
 	Matrix RESULT(nrow,ncol);
 	for(int r=0;r<nrow;r++)

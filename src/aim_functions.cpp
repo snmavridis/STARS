@@ -472,7 +472,7 @@ void Aim::vehicle_data(fstream &input)
 					}
 					count1++;
 					if(count1>ILARGE)
-						{cerr<<"*** Error: 'ENDIF' missing or spelling error after IF in 'input.asc' ***\n";system("pause");exit(1);}
+						{cerr<<"*** Error: 'ENDIF' missing or spelling error after IF in 'input.asc' ***\n";exit(1);}
 				}while(strcmp(buff2,"ENDIF"));
 				//increment event counter
 				e++;	
@@ -1337,7 +1337,7 @@ void Aim::read_tables(char *file_name,Datadeck &datatable)
 	ifstream tbl_stream(file_name);
 
 	if(tbl_stream.fail())
-		{cerr<<"*** Error: File stream '"<<file_name<<"' failed to open (check spelling) ***\n";system("pause");exit(1);}
+		{cerr<<"*** Error: File stream '"<<file_name<<"' failed to open (check spelling) ***\n";exit(1);}
 
 	//determing the total # of tbl_stream
 	while(!tbl_stream.eof())

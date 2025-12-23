@@ -32,7 +32,7 @@ Flat3::Flat3()
 {
 	//creating module-variable array
 	flat3=new Variable[NFLAT3];
-	if(flat3==0){cerr<<"*** Error: flat3[] allocation failed ***\n";system("pause");exit(1);}
+	if(flat3==0){cerr<<"*** Error: flat3[] allocation failed ***\n";exit(1);}
 
 	//zeroeing module-variable array
 	for(int i=0;i<NFLAT3;i++)flat3[i].init("empty",0," "," "," "," ");
@@ -52,7 +52,7 @@ range_fft_size(0)
 {
 	//creating module-variable array
 	aim=new Variable[NAIM];
-	if(aim==0){cerr<<"*** Error: aim[] allocation failed ***\n";system("pause");exit(1);}
+	if(aim==0){cerr<<"*** Error: aim[] allocation failed ***\n";exit(1);}
 
 	//zeroeing module-variable array
 	for(int i=0;i<NAIM;i++)aim[i].init("empty",0," "," "," "," ");
@@ -90,16 +90,16 @@ range_fft_size(0)
 
 	//allocating dynamic memory to the module-variable arrays
 	aim5=new Variable[naim5];		
-	if(!aim5){cerr<<"*** Error: aim5[] allocation failed *** \n";system("pause");exit(1);}
+	if(!aim5){cerr<<"*** Error: aim5[] allocation failed *** \n";exit(1);}
 
 	scrn_aim5=new Variable[nscrn_aim5];
-	if(!scrn_aim5){cerr<<"*** Error: scrn_aim5[] allocation failed *** \n";system("pause");exit(1);}
+	if(!scrn_aim5){cerr<<"*** Error: scrn_aim5[] allocation failed *** \n";exit(1);}
 
 	plot_aim5=new Variable[nplot_aim5];
-	if(!plot_aim5){cerr<<"*** Error: plot_aim5[] allocation failed *** \n";system("pause");exit(1);}
+	if(!plot_aim5){cerr<<"*** Error: plot_aim5[] allocation failed *** \n";exit(1);}
 
 	com_aim5=new Variable[ncom_aim5];
-	if(!com_aim5){cerr<<"*** Error: com_aim5[] allocation failed *** \n";system("pause");exit(1);}
+	if(!com_aim5){cerr<<"*** Error: com_aim5[] allocation failed *** \n";exit(1);}
 
 	// allocating memory for the screen index arrays
 	flat3_scrn_ind=new int[flat3_scrn_count];
@@ -177,7 +177,7 @@ Aircraft::Aircraft(Module *module_list,int num_modules)
 {
 	//creating module-variable array
 	aircraft=new Variable[NAIRCRAFT];
-	if(aircraft==0){cerr<<"*** Error: aircraft[] allocation failed ***\n";system("pause");exit(1);}
+	if(aircraft==0){cerr<<"*** Error: aircraft[] allocation failed ***\n";exit(1);}
 
 	//zeroeing module-variable array
 	for(int i=0;i<NAIRCRAFT;i++)aircraft[i].init("empty",0," "," "," "," ");
@@ -205,11 +205,11 @@ Aircraft::Aircraft(Module *module_list,int num_modules)
 
 	// allocating memory for the com index arrays
 	flat3_com_ind=new int[flat3_com_count];
-	if(!flat3_com_ind){cerr<<"*** Error: flat3_com_count[] allocation failed *** \n";system("pause");exit(1);}
+	if(!flat3_com_ind){cerr<<"*** Error: flat3_com_count[] allocation failed *** \n";exit(1);}
 	aircraft_com_ind=new int[aircraft_com_count];
-	if(!aircraft_com_ind){cerr<<"*** Error: aircraft_com_count[] allocation failed *** \n";system("pause");exit(1);}
+	if(!aircraft_com_ind){cerr<<"*** Error: aircraft_com_count[] allocation failed *** \n";exit(1);}
 	com_aircraft3=new Variable[ncom_aircraft3];
-	if(!com_aircraft3){cerr<<"*** Error: com_aircraft[] allocation failed *** \n";system("pause");exit(1);}
+	if(!com_aircraft3){cerr<<"*** Error: com_aircraft[] allocation failed *** \n";exit(1);}
 
 	//building the index arrays of the data to be loaded into the packets of 'combus'
 	com_index_arrays();
@@ -241,7 +241,7 @@ Vehicle::Vehicle(int number)
 {
 	capacity=number;
 	try{vehicle_ptr=new Cadac *[capacity];}
-	catch(bad_alloc xa){cerr<<"*** Allocation failure of 'vehicle_ptr' *** \n";system("pause");exit(1);}
+	catch(bad_alloc xa){cerr<<"*** Allocation failure of 'vehicle_ptr' *** \n";exit(1);}
 	howmany=0;
 //	cerr<<">>> inside constructor of 'Vehicle' <<<\n";
 }
