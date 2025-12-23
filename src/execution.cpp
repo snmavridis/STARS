@@ -13,13 +13,17 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "class_hierarchy.hpp"
+#include "global_header.hpp"
 #include <ctime>
+#include <filesystem>
 
 using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////////
 //////////////// Definition of global function prototypes used in main() //////
 ///////////////////////////////////////////////////////////////////////////////
+
+
 
 //acquiring the simmulation title
 void acquire_title_options(fstream &input,char *title,char *options);
@@ -124,28 +128,45 @@ int main(int argc, char* argv[])
     input_file = "data/input.asc";  // default CADAC location
 	}
 
-	fstream input(input_file);
-	if (!input) {
-    cerr << "*** Error: File stream '" << input_file << "' failed to open ***\n";
-    cerr << "    Current working directory: " 
-         << std::filesystem::current_path() << "\n";
-    exit(1);
-	}
+	std::filesystem::path input_path = std::filesystem::absolute(std::filesystem::path(input_file));
+
+	// Determine directory of input file
+	std::filesystem::path input_dir = input_path.parent_path();
+    if (input_dir.empty()) {
+        input_dir = std::filesystem::current_path();
+    }
+
+    // Assign to global 
+    g_input_dir = input_dir;
+
+    // Optional diagnostic
+    std::cout << "Input directory set to: " << g_input_dir << std::endl;
+
+    // Now open the input file
+    std::fstream input(input_path);
+    if (!input) {
+        std::cerr << "*** Error: File stream '" << input_path.string()
+                  << "' failed to open ***\n";
+        std::exit(1);
+    }
+
+	std::filesystem::path results_dir = std::filesystem::absolute(std::filesystem::current_path() / "results");
+	std::filesystem::create_directories(results_dir);
 
 	//creating an output stream object and opening 'tabout.asc' file
-	ofstream ftabout("tabout.asc");
+	ofstream ftabout((results_dir / "tabout.asc").string().c_str());
 	if(!ftabout){cout<<" *** Error: cannot open 'tabout.asc' file *** \n";exit(1);}
 
 	//creating an output stream object and opening 'doc.asc' file
-	ofstream fdoc("doc.asc");
+	ofstream fdoc((results_dir / "doc.asc").string().c_str());
 	if(!fdoc){cout<<" *** Error: cannot open 'doc.asc' file *** \n";exit(1);}
 
 	//creating an output stream object and opening 'traj.asc' file
-	ofstream ftraj("traj.asc");
+	ofstream ftraj((results_dir / "traj.asc").string().c_str());
 	if(!ftraj){cout<<" *** Error: cannot open 'traj.asc' file *** \n";exit(1);}
 
 	//creating file 'input_copy.asc' in local directory for use in 'document_input()'
-	ofstream fcopy("input_copy.asc");
+	ofstream fcopy((results_dir / "input_copy.asc").string().c_str());
 	if(!fcopy){cout<<" *** Error: cannot open 'input_copy.asc' file *** \n";exit(1);}
 
 	///////////////////////////////////////////////////////////////////////////

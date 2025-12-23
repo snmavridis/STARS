@@ -13,7 +13,7 @@
 #define _CRT_SECURE_NO_DEPRECATE
 #ifndef global_header__HPP
 #define global_header__HPP
-
+#include <filesystem>
 #include <fstream>
 #include <string>		
 #include "utility_header.hpp"
@@ -21,7 +21,22 @@
 
 using namespace std;
 
+
 ///////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
+//Globals
+//
+//Generate a global path variable that captures the input directory
+//Generate a global path variable that captures the repo root directory
+//
+//122325 Created by Savas Mavridis
+///////////////////////////////////////////////////////////////////////////////
+
+extern std::filesystem::path g_input_dir;
+extern std::filesystem::path g_repo_root;
+
+
 ///////////////////////////////////////////////////////////////////////////////
 //Structure 'Module'
 //

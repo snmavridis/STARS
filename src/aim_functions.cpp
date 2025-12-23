@@ -1332,13 +1332,18 @@ void Aim::read_tables(char *file_name,Datadeck &datatable)
 	int file_ptr=NULL;
 	int var_dim[3]={1,1,1,};
 	int tt(0);
+	std::filesystem::path table_path = g_input_dir / file_name;
 
 	//opening aero-deck file stream
-	ifstream tbl_stream(file_name);
-
-	if(tbl_stream.fail())
-		{cerr<<"*** Error: File stream '"<<file_name<<"' failed to open (check spelling) ***\n";exit(1);}
-
+	std::ifstream tbl_stream(table_path);
+    if (tbl_stream.fail()) {
+        std::cerr << "*** Error: File stream '" << table_path.string()
+                  << "' failed to open (check spelling) ***\n";
+        std::cerr << "    Input directory: " << g_input_dir << "\n";
+        std::cerr << "    Working directory: "
+                  << std::filesystem::current_path() << "\n";
+        std::exit(1);
+    }
 	//determing the total # of tbl_stream
 	while(!tbl_stream.eof())
 	{

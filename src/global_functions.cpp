@@ -10,6 +10,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "class_hierarchy.hpp"
+#include "global_header.hpp"
 #include <filesystem>
 #include <cstdlib>
 
@@ -26,6 +27,10 @@ using namespace std;
 //011128 Created by Peter H Zipfel
 //020919 Added 'document_input()', PZi
 ///////////////////////////////////////////////////////////////////////////////
+
+//define the global input directory path
+std::filesystem::path g_input_dir;
+std::filesystem::path g_repo_root;
 
 void acquire_title_options(fstream &input,char *title,char *options)
 { 
